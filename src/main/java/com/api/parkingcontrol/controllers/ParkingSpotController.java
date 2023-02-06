@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -39,5 +42,21 @@ public class ParkingSpotController {
 		BeanUtils.copyProperties(parkingSpotDto, parkingSpotModel);
 		parkingSpotModel.setRegistrationDate(LocalDateTime.now(ZoneId.of("UTC")));
 		return ResponseEntity.status(HttpStatus.CREATED).body(service.save(parkingSpotModel));
+	}
+
+
+	@GetMapping
+	public ResponseEntity<List<ParkingSpotModel>> getAllParkingSpot() {
+		return ResponseEntity.status(HttpStatus.OK).body(service.findAll());
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<Object> getParkingSpotById(@PathVariable(value = "id") UUID id) {
+		Optional<ParkingSpotModel> parkingSpotModel = service.findById(id);
+		if (!parkingSpotModel.isPresent()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parking spot not found");
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(parkingSpotModel.get());
+
 	}
 }
